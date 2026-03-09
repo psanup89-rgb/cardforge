@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
-import { getTemplate } from "@/components/card-designs";
 import type { BusinessCard } from "@/components/card-designs/types";
 import PublicCardClient from "./PublicCardClient";
 
@@ -49,13 +48,11 @@ export default async function PublicCardPage({ params }: Props) {
 
   // QR points to /view — the client-facing landing page
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL}/card/${card.slug}/view`;
-  const template = getTemplate(card.template_id);
 
   return (
     <PublicCardClient
       card={card as BusinessCard}
       publicUrl={publicUrl}
-      templateName={template.name}
     />
   );
 }
