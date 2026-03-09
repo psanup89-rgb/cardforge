@@ -72,28 +72,32 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button asChild size="sm" variant="outline">
-                    <Link href={`/cards/${card.id}`}>Edit</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link href={`/cards/${card.id}/preview`}>Preview</Link>
-                  </Button>
+                <div className="mt-4 space-y-2">
+                  <div className="flex gap-2">
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={`/cards/${card.id}`}>Edit</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={`/cards/${card.id}/preview`}>Preview</Link>
+                    </Button>
+                  </div>
                   {card.status === "published" && (
-                    <>
+                    <div className="flex gap-2">
                       <Button asChild size="sm" variant="ghost">
                         <Link href={`/present/${card.slug}`} target="_blank">
-                          📲 Present
+                          Share QR
                         </Link>
                       </Button>
                       <Button asChild size="sm" variant="ghost">
                         <Link href={`/card/${card.slug}/view`} target="_blank">
-                          View ↗
+                          Client Preview ↗
                         </Link>
                       </Button>
-                    </>
+                    </div>
                   )}
-                  <DeleteCardButton cardId={card.id} />
+                  <div>
+                    <DeleteCardButton cardId={card.id} />
+                  </div>
                 </div>
               </div>
             );
