@@ -11,9 +11,11 @@ interface Props {
   qrUrl: string;
   /** QR pixel size at scale=1. Defaults to 54. */
   qrSize?: number;
+  /** When set, positions QR from the top (at scale=1) instead of the bottom. */
+  qrTop?: number;
 }
 
-export default function CardWithQR({ card, scale = 1, qrUrl, qrSize = 54 }: Props) {
+export default function CardWithQR({ card, scale = 1, qrUrl, qrSize = 54, qrTop }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState("");
 
   useEffect(() => {
@@ -41,7 +43,9 @@ export default function CardWithQR({ card, scale = 1, qrUrl, qrSize = 54 }: Prop
         <div
           style={{
             position: "absolute",
-            bottom: offset,
+            ...(qrTop !== undefined
+              ? { top: qrTop * scale }
+              : { bottom: offset }),
             right: offset,
             background: "#ffffff",
             padding: pad,

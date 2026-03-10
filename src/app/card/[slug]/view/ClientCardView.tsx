@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { toPng } from "html-to-image";
 import CardWithQR from "@/components/card-designs/CardWithQR";
 import type { BusinessCard } from "@/components/card-designs/types";
 
-const TEMPLATE_THEME: Record<string, { bg: string; surface: string; accent: string; text: string; sub: string }> = {
+const TEMPLATE_THEME: Record<string, { bg: string; bgBase: string; surface: string; accent: string; text: string; sub: string }> = {
   "black-elegance": {
     bg: "linear-gradient(160deg, #080808 0%, #111118 100%)",
+    bgBase: "#080808",
     surface: "rgba(255,255,255,0.04)",
     accent: "#D4AF37",
     text: "#ffffff",
@@ -16,6 +17,7 @@ const TEMPLATE_THEME: Record<string, { bg: string; surface: string; accent: stri
   },
   "vibrant-gradient": {
     bg: "linear-gradient(160deg, #1e1040 0%, #3b1d7a 40%, #6b2a8a 100%)",
+    bgBase: "#1e1040",
     surface: "rgba(255,255,255,0.07)",
     accent: "#f093fb",
     text: "#ffffff",
@@ -23,6 +25,7 @@ const TEMPLATE_THEME: Record<string, { bg: string; surface: string; accent: stri
   },
   "corporate-clean": {
     bg: "linear-gradient(160deg, #0b1221 0%, #0f1e38 100%)",
+    bgBase: "#0b1221",
     surface: "rgba(255,255,255,0.05)",
     accent: "#2563EB",
     text: "#ffffff",
@@ -44,6 +47,13 @@ export default function ClientCardView({ card, clientUrl }: { card: BusinessCard
   const [contactSaved, setContactSaved] = useState(false);
 
   const theme = TEMPLATE_THEME[card.template_id] ?? TEMPLATE_THEME["black-elegance"];
+
+  // Set body background to match theme — prevents white overscroll flash on iOS/Android
+  useEffect(() => {
+    const prev = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = theme.bgBase;
+    return () => { document.body.style.backgroundColor = prev; };
+  }, [theme.bgBase]);
   const accent = card.accent_color || theme.accent;
   const social = card.social_links as Record<string, string> | undefined;
   const activeSocials = Object.entries(SOCIAL_META).filter(([k]) => social?.[k]);
@@ -126,7 +136,7 @@ export default function ClientCardView({ card, clientUrl }: { card: BusinessCard
             boxShadow: `0 0 0 1px rgba(255,255,255,0.08), 0 40px 80px rgba(0,0,0,0.6), 0 0 60px ${accent}18`,
           }}
         >
-          <CardWithQR card={card} scale={1} qrUrl={clientUrl} qrSize={52} />
+          <CardWithQR card={card} scale={1} qrUrl={clientUrl} qrSize={52} qrTop={96} />
         </div>
       </div>
 
