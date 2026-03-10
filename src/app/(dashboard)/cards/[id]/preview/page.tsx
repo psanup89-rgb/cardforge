@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase/server";
-import { getTemplate } from "@/components/card-designs";
 import type { BusinessCard } from "@/components/card-designs/types";
 import { Button } from "@/components/ui/button";
 import PublishButton from "./PublishButton";
+import ClientCardView from "@/app/card/[slug]/view/ClientCardView";
 
 interface Props {
   params: { id: string };
@@ -27,11 +27,10 @@ export default async function PreviewPage({ params }: Props) {
 
   if (!card) notFound();
 
-  const template = getTemplate(card.template_id);
-  const Component = template.component;
+  const clientUrl = `${process.env.NEXT_PUBLIC_APP_URL}/card/${card.slug}/view`;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Preview</h1>
@@ -43,8 +42,8 @@ export default async function PreviewPage({ params }: Props) {
           </Button>
           {card.status === "published" ? (
             <Button asChild variant="outline">
-              <Link href={`/card/${card.slug}`} target="_blank">
-                View public card ↗
+              <Link href={`/present/${card.slug}`} target="_blank">
+                Share QR ↗
               </Link>
             </Button>
           ) : (
@@ -53,38 +52,11 @@ export default async function PreviewPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Full-size card preview */}
-      <div className="flex justify-center">
-        <div className="overflow-hidden rounded-2xl shadow-2xl">
-          <Component card={card as BusinessCard} scale={1.5} />
+      {/* Client preview — exactly what the client sees */}
+      <div className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+        <div className="overflow-y-auto" style={{ maxHeight: "80vh" }}>
+          <ClientCardView card={card as BusinessCard} clientUrl={clientUrl} />
         </div>
-      </div>
-
-      {/* Details summary */}
-      <div className="mx-auto max-w-lg rounded-xl border bg-card p-6 shadow-sm">
-        <h2 className="mb-4 font-semibold">Card Details</h2>
-        <dl className="space-y-2 text-sm">
-          {[
-            ["Name", card.full_name],
-            ["Title", card.designation],
-            ["Company", card.company_name],
-            ["Email", card.email],
-            ["Phone", card.phone],
-            ["Website", card.website],
-            ["Location", card.location],
-            ["Design", template.name],
-            ["Status", card.status],
-          ]
-            .filter(([, v]) => v)
-            .map(([label, value]) => (
-              <div key={label} className="flex gap-2">
-                <dt className="w-24 shrink-0 font-medium text-muted-foreground">
-                  {label}
-                </dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-        </dl>
       </div>
     </div>
   );
