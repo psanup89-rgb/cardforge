@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: { redirectTo: `${appUrl}/api/auth/callback` },
+    options: { redirectTo: `${appUrl}/auth/callback` },
   });
 
   if (error || !data?.properties?.action_link) {
