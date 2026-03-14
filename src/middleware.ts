@@ -34,7 +34,9 @@ export async function middleware(request: NextRequest) {
 
   // Protected routes
   if (
-    (pathname.startsWith("/dashboard") || pathname.startsWith("/cards")) &&
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/cards") ||
+      pathname.startsWith("/admin")) &&
     !session
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
