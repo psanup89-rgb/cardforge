@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email required" }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
   const supabaseAdmin = createServiceClient();
 
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   const { error: emailError } = await resend.emails.send({
-    from: "CardForge <ps.anup.89@gmail.com>",
+    from: "CardForge <onboarding@resend.dev>",
     to: email,
     subject: "Your CardForge login link",
     html: `
