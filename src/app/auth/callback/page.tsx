@@ -38,13 +38,22 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // 2. Handle #access_token= (implicit flow — admin invites)
+      // 2. Handle hash fragments
       const hash = window.location.hash;
       if (hash) {
         const hashParams = new URLSearchParams(hash.substring(1));
+
+        // Supabase error redirect (expired/used link)
+        const hashError = hashParams.get("error_description");
+        if (hashError) {
+          // If it's a signup link that was already used, the email is already confirmed
+          setStatus("confirmed");
+          return;
+        }
+
+        // Implicit flow — admin invites (#access_token=...)
         const accessToken = hashParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token");
-
         if (accessToken && refreshToken) {
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
