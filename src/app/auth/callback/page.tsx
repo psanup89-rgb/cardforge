@@ -26,19 +26,26 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // 2. Handle #access_token= (implicit flow — magic links, admin-generated invites)
+      // 2. Handle #access_token= (implicit flow — magic links, admin invites)
       const hash = window.location.hash;
       if (hash) {
         const hashParams = new URLSearchParams(hash.substring(1));
         const accessToken = hashParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token");
+        const type = hashParams.get("type");
+
         if (accessToken && refreshToken) {
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
           if (!error) {
-            router.replace("/dashboard");
+            // Magic link logins → prompt to set a password
+            if (type === "magiclink") {
+              router.replace("/set-password");
+            } else {
+              router.replace("/dashboard");
+            }
             return;
           }
         }
