@@ -27,8 +27,8 @@ export async function middleware(request: NextRequest) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
@@ -38,13 +38,13 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/cards") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/set-password")) &&
-    !session
+    !user
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // If logged in and visiting auth pages, go to dashboard
-  if ((pathname === "/login" || pathname === "/signup") && session) {
+  if ((pathname === "/login" || pathname === "/signup") && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
