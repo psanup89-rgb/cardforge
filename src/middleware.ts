@@ -1,36 +1,13 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value: "", ...options });
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
+
+  // Check for Supabase auth cookie without any network call
+  const hasAuthCookie = request.cookies.getAll().some(
+    (cookie) =>
+      cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")
+  );
 
   // Protected routes
   if (
@@ -38,17 +15,17 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/cards") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/set-password")) &&
-    !user
+    !hasAuthCookie
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // If logged in and visiting auth pages, go to dashboard
-  if ((pathname === "/login" || pathname === "/signup") && user) {
+  if ((pathname === "/login" || pathname === "/signup") && hasAuthCookie) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
